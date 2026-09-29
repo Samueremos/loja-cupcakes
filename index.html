@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loja de Cupcakes</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Loja de Cupcakes</h1>
+    <p>Escolha seu cupcake favorito.</p>
+
+    <h2>Cupcake de Morango</h2>
+    <p>Massa de morango com cobertura de chantilly.</p>
+    <p>Preço: R$ 8,00</p>
+
+    <button onclick="adicionarAoCarrinho()">Adicionar ao carrinho</button>
+
+    <button id="botao-remover" onclick="removerDoCarrinho()">Remover do carrinho</button>
+
+    <button id="botao-esvaziar" onclick="esvaziarCarrinho()">Esvaziar Carrinho</button>
+
+    <p id="carrinho">Itens no carrinho: 0</p>
+    <p id="total">Total: R$ 0,00</p>
+    <script src="script.js"></script>
+</body>
+</html>
