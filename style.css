@@ -26,3 +26,11 @@ button:disabled {
     color: #555555;
     cursor: not-allowed;
 }
+
+article {
+    background-color: white;
+    border: 1px solid #e8c5d0;
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
