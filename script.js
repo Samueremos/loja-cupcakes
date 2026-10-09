@@ -1,17 +1,62 @@
 const produtos = [
     {
+        id: "morango",
         nome: "Cupcake de Morango",
         descricao: "Massa de morango com cobertura de chantilly.",
         preco: 8.00,
         quantidade: 0
     },
     {
+        id: "chocolate",
         nome: "Cupcake de Chocolate",
         descricao: "Massa de chocolate com cobertura de brigadeiro.",
         preco: 10.00,
         quantidade: 0
     }
 ];
+
+function salvarCarrinho() {
+    const quantidades = {};
+
+    for (const item of produtos) {
+        quantidades[item.id] = item.quantidade;
+    }
+
+    try {
+        localStorage.setItem(
+            "loja-cupcakes-carrinho",
+            JSON.stringify(quantidades)
+        );
+    } catch (erro) {
+        console.warn("Não foi possível salvar o carrinho.", erro);
+    }
+}
+
+function carregarCarrinho() {
+    try {
+        const textoSalvo = localStorage.getItem("loja-cupcakes-carrinho");
+
+        if (textoSalvo === null) {
+            return;
+        }
+
+        const quantidades = JSON.parse(textoSalvo);
+
+        if (quantidades === null || typeof quantidades !== "object") {
+            return;
+        }
+
+        for (const item of produtos) {
+            const quantidadeSalva = quantidades[item.id];
+
+            if (Number.isSafeInteger(quantidadeSalva) && quantidadeSalva >= 0) {
+                item.quantidade = quantidadeSalva;
+            }
+        }
+    } catch (erro) {
+        console.warn("Não foi possível recuperar o carrinho.", erro);
+    }
+}
 
 function formatarMoeda(valor) {
     return valor.toLocaleString("pt-BR", {
@@ -105,6 +150,8 @@ function atualizarCarrinho() {
 
     document.getElementById("botao-esvaziar").disabled =
         quantidadeTotal === 0;
+
+    salvarCarrinho();
 }
 
 function esvaziarCarrinho() {
@@ -115,5 +162,6 @@ function esvaziarCarrinho() {
     atualizarCarrinho();
 }
 
+carregarCarrinho();
 mostrarProdutos();
 atualizarCarrinho();
