@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Loja de Cupcakes</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <h1>Loja de Cupcakes</h1>
@@ -65,12 +65,12 @@
 
         <p>Projeto acadêmico: pagamento simulado, sem cobrança real.</p>
 
-        <button id="botao-finalizador" type="submit">
+        <button id="botao-finalizar" type="submit">
             Revisar pedido
         </button>
     </form>
 
     <p id="mensagem-pedido" role="status"></p>
-    <script src="script.js"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>

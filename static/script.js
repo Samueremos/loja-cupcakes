@@ -1,19 +1,4 @@
-const produtos = [
-    {
-        id: "morango",
-        nome: "Cupcake de Morango",
-        descricao: "Massa de morango com cobertura de chantilly.",
-        preco: 8.00,
-        quantidade: 0
-    },
-    {
-        id: "chocolate",
-        nome: "Cupcake de Chocolate",
-        descricao: "Massa de chocolate com cobertura de brigadeiro.",
-        preco: 10.00,
-        quantidade: 0
-    }
-];
+let produtos = [];
 
 function salvarCarrinho() {
     const quantidades = {};
@@ -200,9 +185,44 @@ function revisarPedido(evento) {
     ". Esta é uma revisão. O pedido ainda não foi enviado.";
 }
 
-carregarCarrinho();
-mostrarProdutos();
-atualizarCarrinho();
+async function iniciarLoja() {
+    const vitrine = document.getElementById("vitrine");
+    const botaoFinalizar = document.getElementById("botao-finalizar");
+    const botaoEsvaziar = document.getElementById("botao-esvaziar");
+
+    vitrine.textContent = "Carregando produtos...";
+    botaoFinalizar.disabled = true;
+    botaoEsvaziar.disabled = true;
+
+    try {
+        const resposta = await fetch("/api/produtos");
+
+        if (!resposta.ok) {
+            throw new Error("Não foi possível buscar os produtos.");
+        }
+
+        produtos = await resposta.json();
+
+        for (const item of produtos) {
+            item.quantidade = 0;
+        }
+
+        carregarCarrinho();
+        mostrarProdutos();
+        atualizarCarrinho();
+    
+        botaoFinalizar.disabled = false;
+    
+    } catch (erro) {
+        vitrine.textContent =
+            "Não foi possível carregar os produtos. Atualize a página para tentar novamente.";
+
+        console.error("Erro ao iniciar a loja:", erro);
+    }
+    
+}
+
+iniciarLoja();
 
 document.getElementById("formulario-pedido")
     .addEventListener("submit", revisarPedido);
