@@ -106,6 +106,8 @@ function removerDoCarrinho(item) {
 }
 
 function atualizarCarrinho() {
+    document.getElementById("mensagem-pedido").textContent = "";
+
     const lista = document.getElementById("itens-carrinho");
     lista.textContent = "";
 
@@ -162,6 +164,50 @@ function esvaziarCarrinho() {
     atualizarCarrinho();
 }
 
+function revisarPedido(evento) {
+    evento.preventDefault();
+
+    const mensagem = document.getElementById("mensagem-pedido");
+
+    let quantidadeTotal = 0;
+    let valorTotal = 0;
+
+    for (const item of produtos) {
+        quantidadeTotal = quantidadeTotal + item.quantidade;
+        valorTotal = valorTotal + item.quantidade * item.preco;
+    }
+
+    if (quantidadeTotal === 0) {
+        mensagem.textContent = "Adicione um cupcake antes de revisar o pedido.";
+        return;
+    }
+
+    const nome = document.getElementById("cliente-nome").value.trim();
+    const telefone = document.getElementById("cliente-telefone").value.trim();
+    const endereco = document.getElementById("cliente-endereco").value.trim();
+
+    if (nome === "" || telefone === "" || endereco === "") {
+        mensagem.textContent = "Preencha nome, telefone e endereço.";
+        return;
+    }
+
+    mensagem.textContent = 
+    "Confira os dados: " + nome +
+    " | Telefone: " + telefone +
+    " | Endereço: " + endereco +
+    " | Quantidade: " + quantidadeTotal +
+    " | Total: " + formatarMoeda(valorTotal) +
+    ". Esta é uma revisão. O pedido ainda não foi enviado.";
+}
+
 carregarCarrinho();
 mostrarProdutos();
 atualizarCarrinho();
+
+document.getElementById("formulario-pedido")
+    .addEventListener("submit", revisarPedido);
+
+document.getElementById("formulario-pedido")
+    .addEventListener("input", function () {
+        document.getElementById("mensagem-pedido").textContent = "";
+    });

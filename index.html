@@ -23,6 +23,54 @@
         Esvaziar Carrinho
     </button>
     
+    <h2>Dados para entrega</h2>
+
+    <form id="formulario-pedido">
+        <p>
+            <label for="cliente-nome">Nome:</label>
+            <input
+                id="cliente-nome"
+                name="nome"
+                type="text"
+                autocomplete="name"
+                maxlength="100"
+                required
+            >
+        </p>
+
+        <p>
+            <label for="cliente-telefone">Telefone:</label>
+            <input
+                id="cliente-telefone"
+                name="telefone"
+                type="tel"
+                autocomplete="tel"
+                maxlength="20"
+                required
+            >
+        </p>
+
+        <p>
+            <label for="cliente-endereco">Endereço completo:</label>
+            <textarea
+                id="cliente-endereco"
+                name="endereco"
+                autocomplete="street-address"
+                rows="3"
+                maxlength="300"
+                placeholder="Rua, número, complemento, bairro, cidade e CEP"
+                required
+            ></textarea>
+        </p>
+
+        <p>Projeto acadêmico: pagamento simulado, sem cobrança real.</p>
+
+        <button id="botao-finalizador" type="submit">
+            Revisar pedido
+        </button>
+    </form>
+
+    <p id="mensagem-pedido" role="status"></p>
     <script src="script.js"></script>
 </body>
 </html>
