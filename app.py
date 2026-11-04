@@ -1,3 +1,5 @@
+from contextlib import contextmanager
+
 import sqlite3
 from pathlib import Path
 
@@ -9,10 +11,19 @@ app = Flask(__name__)
 
 CAMINHO_BANCO = Path(app.instance_path) / "loja_cupcakes.db"
 
+@contextmanager
 def obter_conexao():
     conexao = sqlite3.connect(CAMINHO_BANCO)
     conexao.row_factory = sqlite3.Row
-    return conexao
+
+    try:
+        yield conexao
+        conexao.commit()
+    except Exception:
+        conexao.rollback()
+        raise
+    finally:
+        conexao.close()
 
 def criar_banco():
     Path(app.instance_path).mkdir(exist_ok=True)
