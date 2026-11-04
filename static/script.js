@@ -149,40 +149,77 @@ function esvaziarCarrinho() {
     atualizarCarrinho();
 }
 
-function revisarPedido(evento) {
+async function finalizarPedido(evento) {
     evento.preventDefault();
 
+    const formulario = document.getElementById("formulario-pedido");
     const mensagem = document.getElementById("mensagem-pedido");
-
-    let quantidadeTotal = 0;
-    let valorTotal = 0;
-
-    for (const item of produtos) {
-        quantidadeTotal = quantidadeTotal + item.quantidade;
-        valorTotal = valorTotal + item.quantidade * item.preco;
-    }
-
-    if (quantidadeTotal === 0) {
-        mensagem.textContent = "Adicione um cupcake antes de revisar o pedido.";
-        return;
-    }
+    const botaoFinalizar = document.getElementById("botao-finalizar");
 
     const nome = document.getElementById("cliente-nome").value.trim();
     const telefone = document.getElementById("cliente-telefone").value.trim();
     const endereco = document.getElementById("cliente-endereco").value.trim();
 
-    if (nome === "" || telefone === "" || endereco === "") {
-        mensagem.textContent = "Preencha nome, telefone e endereço.";
+    const itens = [];
+
+    for (const item of produtos) {
+        if (item.quantidade > 0) {
+            itens.push({
+                produto_id: item.id,
+                quantidade: item.quantidade
+            });
+        }
+    }
+
+    if (itens.length === 0) {
+        mensagem.textContent =
+            "Adicione pelo menos um cupcake antes de finalizar o pedido.";
         return;
     }
 
-    mensagem.textContent = 
-    "Confira os dados: " + nome +
-    " | Telefone: " + telefone +
-    " | Endereço: " + endereco +
-    " | Quantidade: " + quantidadeTotal +
-    " | Total: " + formatarMoeda(valorTotal) +
-    ". Esta é uma revisão. O pedido ainda não foi enviado.";
+    botaoFinalizar.disabled = true;
+    mensagem.textContent = "Enviando pedido...";
+
+    try {
+        const resposta = await fetch("/api/pedidos", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                nome: nome,
+                telefone: telefone,
+                endereco: endereco,
+                itens: itens
+            })
+        });
+
+        const resultado = await resposta.json();
+
+        if (!resposta.ok) {
+            throw new Error(
+                resultado.erro || "Não foi possível registrar o pedido."
+            );
+        }
+
+        for (const item of produtos) {
+            item.quantidade = 0;
+        }
+
+        formulario.reset();
+        atualizarCarrinho();
+
+        mensagem.textContent =
+            "Pedido #" + resultado.pedido_id +
+            " registrado com sucesso. Status: " + resultado.status +
+            ". Total: " + formatarMoeda(resultado.valor_total) +
+            ". Pagamento simulado.";
+
+    } catch (erro) {
+        mensagem.textContent = erro.message;
+    } finally {
+        botaoFinalizar.disabled = false;
+    }
 }
 
 async function iniciarLoja() {
@@ -225,7 +262,7 @@ async function iniciarLoja() {
 iniciarLoja();
 
 document.getElementById("formulario-pedido")
-    .addEventListener("submit", revisarPedido);
+    .addEventListener("submit", finalizarPedido);
 
 document.getElementById("formulario-pedido")
     .addEventListener("input", function () {

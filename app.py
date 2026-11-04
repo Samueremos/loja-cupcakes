@@ -1,6 +1,46 @@
-from flask import Flask, render_template, jsonify
+import sqlite3
+from pathlib import Path
+
+from flask import Flask, jsonify, render_template, request
 
 app = Flask(__name__)
+
+CAMINHO_BANCO = Path(app.instance_path) / "loja_cupcakes.db"
+
+def obter_conexao():
+    conexao = sqlite3.connect(CAMINHO_BANCO)
+    conexao.row_factory = sqlite3.Row
+    return conexao
+
+def criar_banco():
+    Path(app.instance_path).mkdir(exist_ok=True)
+
+    with obter_conexao() as conexao:
+        conexao.execute("""
+            CREATE TABLE IF NOT EXISTS pedidos (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                nome_cliente TEXT NOT NULL,
+                telefone TEXT NOT NULL,
+                endereco TEXT NOT NULL,
+                valor_total REAL NOT NULL,
+                status TEXT NOT NULL DEFAULT 'Recebido',
+                criado_em TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+
+        conexao.execute("""
+            CREATE TABLE IF NOT EXISTS itens_pedido (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                pedido_id INTEGER NOT NULL,
+                produto_id TEXT NOT NULL,
+                nome_produto TEXT NOT NULL,
+                preco_unitario REAL NOT NULL,
+                quantidade INTEGER NOT NULL,
+                FOREIGN KEY (pedido_id) REFERENCES pedidos (id)
+            )
+        """)
+
+criar_banco()
 
 produtos = [
     {
@@ -24,3 +64,85 @@ def inicio():
 @app.get("/api/produtos")
 def listar_produtos():
     return jsonify(produtos)
+
+@app.post("/api/pedidos")
+def criar_pedido():
+    dados = request.get_json(silent=True)
+
+    if not isinstance(dados, dict):
+        return jsonify({"erro": "Envie os dados do pedido em JSON."}), 400
+
+    nome = str(dados.get("nome", "")).strip()
+    telefone = str(dados.get("telefone", "")).strip()
+    endereco = str(dados.get("endereco", "")).strip()
+    itens_recebidos = dados.get("itens")
+
+    if not nome or not telefone or not endereco:
+        return jsonify({
+            "erro": "Nome, telefone e endereço são obrigatórios."
+        }), 400
+
+    if not isinstance(itens_recebidos, list) or not itens_recebidos:
+        return jsonify({
+            "erro": "Adicione pelo menos um cupcake ao pedido."
+        }), 400
+
+    produtos_por_id = {produto["id"]: produto for produto in produtos}
+    itens_validos = []
+    valor_total = 0
+
+    for item_recebido in itens_recebidos:
+        if not isinstance(item_recebido, dict):
+            return jsonify({"erro": "Item de pedido inválido."}), 400
+
+        produto_id = item_recebido.get("produto_id")
+        quantidade = item_recebido.get("quantidade")
+
+        if (
+            produto_id not in produtos_por_id
+            or not isinstance(quantidade, int)
+            or quantidade <= 0
+        ):
+            return jsonify({"erro": "Produto ou quantidade inválidos."}), 400
+
+        produto = produtos_por_id[produto_id]
+        valor_total += produto["preco"] * quantidade
+
+        itens_validos.append({
+            "produto_id": produto["id"],
+            "nome_produto": produto["nome"],
+            "preco_unitario": produto["preco"],
+            "quantidade": quantidade
+        })
+
+    with obter_conexao() as conexao:
+        cursor = conexao.execute("""
+            INSERT INTO pedidos (
+                nome_cliente, telefone, endereco, valor_total
+            )
+            VALUES (?, ?, ?, ?)
+        """, (nome, telefone, endereco, valor_total))
+
+        pedido_id = cursor.lastrowid
+
+        for item in itens_validos:
+            conexao.execute("""
+                INSERT INTO itens_pedido (
+                    pedido_id, produto_id, nome_produto,
+                    preco_unitario, quantidade
+                )
+                VALUES (?, ?, ?, ?, ?)
+            """, (
+                pedido_id,
+                item["produto_id"],
+                item["nome_produto"],
+                item["preco_unitario"],
+                item["quantidade"]
+            ))
+
+    return jsonify({
+        "mensagem": "Pedido registrado com sucesso.",
+        "pedido_id": pedido_id,
+        "status": "Recebido",
+        "valor_total": valor_total
+    }), 201
