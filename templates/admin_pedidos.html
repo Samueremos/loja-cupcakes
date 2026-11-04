@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administração - Loja de Cupcakes</title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Pedidos registrados</h1>
+
+    <p>
+        <a href="{{ url_for('inicio') }}">Voltar para a loja</a>
+    </p>
+
+    {% if pedidos %}
+        {% for pedido in pedidos %}
+            <article>
+                <h2>Pedido #{{ pedido["id"] }}</h2>
+
+                <p><strong>Cliente:</strong> {{ pedido["nome_cliente"] }}</p>
+                <p><strong>Telefone:</strong> {{ pedido["telefone"] }}</p>
+                <p><strong>Endereço:</strong> {{ pedido["endereco"] }}</p>
+                <p><strong>Itens:</strong> {{ pedido["itens"] }}</p>
+                <p>
+                    <strong>Total:</strong>
+                    R$ {{ "%.2f"|format(pedido["valor_total"]) }}
+                </p>
+                <p><strong>Data:</strong> {{ pedido["criado_em"] }}</p>
+
+                <form
+                    method="post"
+                    action="{{ url_for('atualizar_status_pedido', pedido_id=pedido['id']) }}"
+                >
+                    <label for="status-{{ pedido['id'] }}">Status:</label>
+
+                    <select id="status-{{ pedido['id'] }}" name="status">
+                        {% for status in status_permitidos %}
+                            <option
+                                value="{{ status }}"
+                                {% if status == pedido["status"] %}selected{% endif %}
+                            >
+                                {{ status }}
+                            </option>
+                        {% endfor %}
+                    </select>
+
+                    <button type="submit">Atualizar status</button>
+                </form>
+            </article>
+        {% endfor %}
+    {% else %}
+        <p>Nenhum pedido registrado até o momento.</p>
+    {% endif %}
+</body>
+</html>

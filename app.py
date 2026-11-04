@@ -1,7 +1,9 @@
 import sqlite3
 from pathlib import Path
 
-from flask import Flask, jsonify, render_template, request
+from flask import (
+    Flask, abort, jsonify, redirect, render_template, request, url_for
+)
 
 app = Flask(__name__)
 
@@ -146,3 +148,61 @@ def criar_pedido():
         "status": "Recebido",
         "valor_total": valor_total
     }), 201
+
+STATUS_PERMITIDOS = [
+    "Recebido",
+    "Em preparo",
+    "Saiu para entrega",
+    "Entregue"
+]
+
+
+@app.get("/admin/pedidos")
+def admin_pedidos():
+    with obter_conexao() as conexao:
+        pedidos = conexao.execute("""
+            SELECT
+                pedidos.id,
+                pedidos.nome_cliente,
+                pedidos.telefone,
+                pedidos.endereco,
+                pedidos.valor_total,
+                pedidos.status,
+                pedidos.criado_em,
+                GROUP_CONCAT(
+                    itens_pedido.nome_produto || ' x' ||
+                    itens_pedido.quantidade,
+                    ', '
+                ) AS itens
+            FROM pedidos
+            LEFT JOIN itens_pedido
+                ON itens_pedido.pedido_id = pedidos.id
+            GROUP BY pedidos.id
+            ORDER BY pedidos.id DESC
+        """).fetchall()
+
+    return render_template(
+        "admin_pedidos.html",
+        pedidos=pedidos,
+        status_permitidos=STATUS_PERMITIDOS
+    )
+
+
+@app.post("/admin/pedidos/<int:pedido_id>/status")
+def atualizar_status_pedido(pedido_id):
+    novo_status = request.form.get("status", "")
+
+    if novo_status not in STATUS_PERMITIDOS:
+        abort(400, "Status inválido.")
+
+    with obter_conexao() as conexao:
+        cursor = conexao.execute("""
+            UPDATE pedidos
+            SET status = ?
+            WHERE id = ?
+        """, (novo_status, pedido_id))
+
+        if cursor.rowcount == 0:
+            abort(404, "Pedido não encontrado.")
+
+    return redirect(url_for("admin_pedidos"))
