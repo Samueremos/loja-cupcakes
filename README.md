@@ -13,18 +13,21 @@ atualiza seus status.
 ### Cliente
 
 - Visualização de cupcakes disponíveis.
+- Catálogo com seis sabores, imagens e preços.
 - Adição, remoção e esvaziamento do carrinho.
 - Cálculo automático do total.
 - Persistência do carrinho no navegador.
-- Formulário de entrega com campos obrigatórios.
-- Finalização de pedido com pagamento simulado.
+- Formulário de entrega com campos obrigatórios e validação de telefone com DDD.
+- Finalização de pedido com mensagem de confirmação, limpeza do carrinho e do formulário.
 - Registro dos pedidos em banco de dados SQLite.
+- Interface responsiva para celular e computador.
 
 ### Administração
 
 - Consulta dos pedidos registrados.
 - Visualização de cliente, endereço, itens, total e data.
 - Atualização de status: Recebido, Em preparo, Saiu para entrega e Entregue.
+- Resumo de pedidos por status e valores formatados em real brasileiro.
 
 ## Tecnologias utilizadas
 
@@ -44,6 +47,7 @@ loja-cupcakes/
 ├── docs/
 ├── instance/
 ├── static/
+│   ├── images/
 │   ├── script.js
 │   └── style.css
 ├── templates/

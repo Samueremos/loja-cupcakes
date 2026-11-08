@@ -7,26 +7,56 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>Loja de Cupcakes</h1>
-    <p>Escolha seu cupcake favorito.</p>
+    <header class="cabecalho">
+        <p class="marca">Cupcakes artesanais</p>
+        <h1>Loja de Cupcakes</h1>
+        <p class="subtitulo">Escolha seus sabores favoritos e receba onde estiver.</p>
+    </header>
 
-    <div id="vitrine"></div>
+    <main>
+        <section class="secao" aria-labelledby="titulo-cardapio">
+            <div class="titulo-secao">
+                <div>
+                    <p class="marca">Cardápio</p>
+                    <h2 id="titulo-cardapio">Sabores disponíveis</h2>
+                </div>
+                <span class="aviso">Pagamento simulado</span>
+            </div>
 
-    <h2>Carrinho</h2>
+            <div id="vitrine" aria-live="polite"></div>
+        </section>
 
-    <div id="itens-carrinho"></div>
+        <section class="secao painel-carrinho" aria-labelledby="titulo-carrinho">
+            <div class="titulo-secao">
+                <div>
+                    <p class="marca">Seu pedido</p>
+                    <h2 id="titulo-carrinho">Carrinho</h2>
+                </div>
+                <span id="contador-carrinho" class="contador">0 itens</span>
+            </div>
 
-    <p id="carrinho">Itens no carrinho: 0</p>
-    <p id="total">Total: R$ 0,00</p>
-    
-    <button id="botao-esvaziar" onclick="esvaziarCarrinho()">
-        Esvaziar Carrinho
-    </button>
-    
-    <h2>Dados para entrega</h2>
+            <div id="itens-carrinho" aria-live="polite"></div>
 
-    <form id="formulario-pedido">
-        <p>
+            <div class="resumo-carrinho">
+                <p id="carrinho">Itens no carrinho: 0</p>
+                <p id="total">Total: R$ 0,00</p>
+            </div>
+
+            <button id="botao-esvaziar" type="button" onclick="esvaziarCarrinho()">
+                Esvaziar carrinho
+            </button>
+        </section>
+
+        <section class="secao secao-entrega" aria-labelledby="titulo-entrega">
+            <div class="titulo-secao">
+                <div>
+                    <p class="marca">Última etapa</p>
+                    <h2 id="titulo-entrega">Dados para entrega</h2>
+                </div>
+            </div>
+
+            <form id="formulario-pedido">
+                <div class="campo-formulario">
             <label for="cliente-nome">Nome:</label>
             <input
                 id="cliente-nome"
@@ -36,21 +66,23 @@
                 maxlength="100"
                 required
             >
-        </p>
+                </div>
 
-        <p>
+                <div class="campo-formulario">
             <label for="cliente-telefone">Telefone:</label>
             <input
                 id="cliente-telefone"
                 name="telefone"
                 type="tel"
                 autocomplete="tel"
+                inputmode="tel"
                 maxlength="20"
+                placeholder="(11) 99999-9999"
                 required
             >
-        </p>
+                </div>
 
-        <p>
+                <div class="campo-formulario">
             <label for="cliente-endereco">Endereço completo:</label>
             <textarea
                 id="cliente-endereco"
@@ -61,16 +93,22 @@
                 placeholder="Rua, número, complemento, bairro, cidade e CEP"
                 required
             ></textarea>
-        </p>
+                </div>
 
-        <p>Projeto acadêmico: pagamento simulado, sem cobrança real.</p>
+                <p class="texto-apoio">Projeto acadêmico: pagamento simulado, sem cobrança real.</p>
 
-        <button id="botao-finalizar" type="submit">
-            Finalizar pedido
-        </button>
-    </form>
+                <button id="botao-finalizar" type="submit">
+                    Finalizar pedido
+                </button>
+            </form>
 
-    <p id="mensagem-pedido" role="status"></p>
+            <p id="mensagem-pedido" role="status" aria-live="polite"></p>
+        </section>
+    </main>
+
+    <footer>
+        Desenvolvido por Samuel Lopes Perdigão - Projeto acadêmico de Engenharia de Software
+    </footer>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>

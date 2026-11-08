@@ -26,10 +26,13 @@ temporário, sem modificar os pedidos criados durante o uso da aplicação.
 
 | ID | Teste | Resultado esperado | Resultado obtido |
 |---|---|---|---|
-| TA-01 | Consultar catálogo | A API retorna os dois cupcakes cadastrados. | Aprovado |
+| TA-01 | Consultar catálogo | A API retorna os seis cupcakes cadastrados, com imagem e preço. | Aprovado |
 | TA-02 | Criar pedido válido | O pedido é registrado com status Recebido e total correto. | Aprovado |
 | TA-03 | Criar pedido sem itens | O sistema rejeita o pedido e informa o erro. | Aprovado |
 | TA-04 | Atualizar status | O administrador altera o pedido para Em preparo. | Aprovado |
+| TA-05 | Validar telefone | O sistema rejeita telefone sem DDD válido. | Aprovado |
+| TA-06 | Painel administrativo | O painel exibe resumo dos status e valor em formato brasileiro. | Aprovado |
+| TA-07 | Página inicial | A loja exibe as seções de catálogo, carrinho e dados de entrega. | Aprovado |
 
 Comando executado:
 
@@ -37,7 +40,7 @@ Comando executado:
 
 Resultado observado:
 
-    Ran 4 tests
+    Ran 7 tests
     OK
 
 ## Testes manuais

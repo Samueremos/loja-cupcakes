@@ -50,6 +50,17 @@ function formatarMoeda(valor) {
     });
 }
 
+function mostrarMensagem(texto, tipo = "") {
+    const mensagem = document.getElementById("mensagem-pedido");
+    mensagem.textContent = texto;
+    mensagem.className = tipo;
+}
+
+function telefoneValido(telefone) {
+    const digitos = telefone.replace(/\D/g, "");
+    return digitos.length === 10 || digitos.length === 11;
+}
+
 function mostrarProdutos() {
     const vitrine = document.getElementById("vitrine");
     vitrine.textContent = "";
@@ -61,6 +72,7 @@ function mostrarProdutos() {
         imagem.src = "/static/" + item.imagem;
         imagem.alt = item.nome;
         imagem.className = "imagem-produto";
+        imagem.loading = "lazy";
 
         const nome = document.createElement("h2");
         nome.textContent = item.nome;
@@ -69,6 +81,7 @@ function mostrarProdutos() {
         descricao.textContent = item.descricao;
 
         const preco = document.createElement("p");
+        preco.className = "preco-produto";
         preco.textContent = "Preço: " + formatarMoeda(item.preco);
 
         const botao = document.createElement("button");
@@ -85,19 +98,19 @@ function mostrarProdutos() {
 
 function adicionarAoCarrinho(item) {
     item.quantidade = item.quantidade + 1;
+    mostrarMensagem("");
     atualizarCarrinho();
 }
 
 function removerDoCarrinho(item) {
     if (item.quantidade > 0) {
         item.quantidade = item.quantidade - 1;
+        mostrarMensagem("");
         atualizarCarrinho();
     }
 }
 
 function atualizarCarrinho() {
-    document.getElementById("mensagem-pedido").textContent = "";
-
     const lista = document.getElementById("itens-carrinho");
     lista.textContent = "";
 
@@ -110,6 +123,7 @@ function atualizarCarrinho() {
 
         if (item.quantidade > 0) {
             const linha = document.createElement("article");
+            linha.className = "item-carrinho";
 
             const resumo = document.createElement("p");
             const subtotal = item.quantidade * item.preco;
@@ -140,7 +154,13 @@ function atualizarCarrinho() {
     document.getElementById("total").textContent =
         "Total: " + formatarMoeda(valorTotal);
 
+    document.getElementById("contador-carrinho").textContent =
+        quantidadeTotal + (quantidadeTotal === 1 ? " item" : " itens");
+
     document.getElementById("botao-esvaziar").disabled =
+        quantidadeTotal === 0;
+
+    document.getElementById("botao-finalizar").disabled =
         quantidadeTotal === 0;
 
     salvarCarrinho();
@@ -151,6 +171,7 @@ function esvaziarCarrinho() {
         item.quantidade = 0;
     }
 
+    mostrarMensagem("");
     atualizarCarrinho();
 }
 
@@ -158,7 +179,6 @@ async function finalizarPedido(evento) {
     evento.preventDefault();
 
     const formulario = document.getElementById("formulario-pedido");
-    const mensagem = document.getElementById("mensagem-pedido");
     const botaoFinalizar = document.getElementById("botao-finalizar");
 
     const nome = document.getElementById("cliente-nome").value.trim();
@@ -177,13 +197,23 @@ async function finalizarPedido(evento) {
     }
 
     if (itens.length === 0) {
-        mensagem.textContent =
-            "Adicione pelo menos um cupcake antes de finalizar o pedido.";
+        mostrarMensagem(
+            "Adicione pelo menos um cupcake antes de finalizar o pedido.",
+            "erro"
+        );
+        return;
+    }
+
+    if (!telefoneValido(telefone)) {
+        mostrarMensagem(
+            "Informe um telefone com DDD, contendo 10 ou 11 dígitos.",
+            "erro"
+        );
         return;
     }
 
     botaoFinalizar.disabled = true;
-    mensagem.textContent = "Enviando pedido...";
+    mostrarMensagem("Enviando pedido...");
 
     try {
         const resposta = await fetch("/api/pedidos", {
@@ -214,16 +244,22 @@ async function finalizarPedido(evento) {
         formulario.reset();
         atualizarCarrinho();
 
-        mensagem.textContent =
+        mostrarMensagem(
             "Pedido #" + resultado.pedido_id +
             " registrado com sucesso. Status: " + resultado.status +
             ". Total: " + formatarMoeda(resultado.valor_total) +
-            ". Pagamento simulado.";
+            ". Pagamento simulado.",
+            "sucesso"
+        );
 
     } catch (erro) {
-        mensagem.textContent = erro.message;
+        mostrarMensagem(erro.message, "erro");
     } finally {
-        botaoFinalizar.disabled = false;
+        const quantidadeTotal = produtos.reduce(function (total, item) {
+            return total + item.quantidade;
+        }, 0);
+
+        botaoFinalizar.disabled = quantidadeTotal === 0;
     }
 }
 
@@ -252,9 +288,6 @@ async function iniciarLoja() {
         carregarCarrinho();
         mostrarProdutos();
         atualizarCarrinho();
-    
-        botaoFinalizar.disabled = false;
-    
     } catch (erro) {
         vitrine.textContent =
             "Não foi possível carregar os produtos. Atualize a página para tentar novamente.";
@@ -271,5 +304,5 @@ document.getElementById("formulario-pedido")
 
 document.getElementById("formulario-pedido")
     .addEventListener("input", function () {
-        document.getElementById("mensagem-pedido").textContent = "";
+        mostrarMensagem("");
     });

@@ -11,6 +11,18 @@ app = Flask(__name__)
 
 CAMINHO_BANCO = Path(app.instance_path) / "loja_cupcakes.db"
 
+
+@app.template_filter("brl")
+def formatar_brl(valor):
+    """Formata um valor numérico para o padrão brasileiro de moeda."""
+    return "R$ " + f"{valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
+
+def telefone_valido(telefone):
+    """Aceita telefones brasileiros com DDD, com 10 ou 11 dígitos."""
+    digitos = "".join(caractere for caractere in telefone if caractere.isdigit())
+    return len(digitos) in (10, 11)
+
 @contextmanager
 def obter_conexao():
     conexao = sqlite3.connect(CAMINHO_BANCO)
@@ -125,6 +137,11 @@ def criar_pedido():
             "erro": "Nome, telefone e endereço são obrigatórios."
         }), 400
 
+    if not telefone_valido(telefone):
+        return jsonify({
+            "erro": "Informe um telefone com DDD, contendo 10 ou 11 dígitos."
+        }), 400
+
     if not isinstance(itens_recebidos, list) or not itens_recebidos:
         return jsonify({
             "erro": "Adicione pelo menos um cupcake ao pedido."
@@ -222,10 +239,16 @@ def admin_pedidos():
             ORDER BY pedidos.id DESC
         """).fetchall()
 
+    resumo_status = {status: 0 for status in STATUS_PERMITIDOS}
+
+    for pedido in pedidos:
+        resumo_status[pedido["status"]] += 1
+
     return render_template(
         "admin_pedidos.html",
         pedidos=pedidos,
-        status_permitidos=STATUS_PERMITIDOS
+        status_permitidos=STATUS_PERMITIDOS,
+        resumo_status=resumo_status
     )
 
 

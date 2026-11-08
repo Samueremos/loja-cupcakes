@@ -45,9 +45,18 @@ class TesteLojaCupcakes(unittest.TestCase):
 
         produtos = resposta.get_json()
 
-        self.assertEqual(len(produtos), 2)
+        self.assertEqual(len(produtos), 6)
         self.assertEqual(produtos[0]["id"], "morango")
         self.assertEqual(produtos[1]["preco"], 10.00)
+        self.assertEqual(produtos[5]["id"], "cookies-cream")
+
+    def test_pagina_inicial_exibe_catalogo_e_formulario(self):
+        resposta = self.cliente.get("/")
+        pagina = resposta.get_data(as_text=True)
+
+        self.assertEqual(resposta.status_code, 200)
+        self.assertIn("Sabores disponíveis", pagina)
+        self.assertIn('id="formulario-pedido"', pagina)
 
     def test_criar_pedido_valido(self):
         resposta = self.cliente.post(
@@ -90,6 +99,18 @@ class TesteLojaCupcakes(unittest.TestCase):
             "Adicione pelo menos um cupcake ao pedido."
         )
 
+    def test_rejeitar_telefone_sem_ddd_valido(self):
+        dados = self.criar_dados_pedido()
+        dados["telefone"] = "12345"
+
+        resposta = self.cliente.post("/api/pedidos", json=dados)
+
+        self.assertEqual(resposta.status_code, 400)
+        self.assertEqual(
+            resposta.get_json()["erro"],
+            "Informe um telefone com DDD, contendo 10 ou 11 dígitos."
+        )
+
     def test_atualizar_status_do_pedido(self):
         resposta_criacao = self.cliente.post(
             "/api/pedidos",
@@ -114,6 +135,16 @@ class TesteLojaCupcakes(unittest.TestCase):
             """, (pedido_id,)).fetchone()
 
         self.assertEqual(pedido["status"], "Em preparo")
+
+    def test_painel_admin_exibe_resumo_e_moeda_brasileira(self):
+        self.cliente.post("/api/pedidos", json=self.criar_dados_pedido())
+
+        resposta = self.cliente.get("/admin/pedidos")
+        pagina = resposta.get_data(as_text=True)
+
+        self.assertEqual(resposta.status_code, 200)
+        self.assertIn("R$ 26,00", pagina)
+        self.assertIn("Recebido", pagina)
 
 
 if __name__ == "__main__":
