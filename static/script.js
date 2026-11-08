@@ -57,6 +57,11 @@ function mostrarProdutos() {
     for (const item of produtos) {
         const cartao = document.createElement("article");
 
+        const imagem = document.createElement("img");
+        imagem.src = "/static/" + item.imagem;
+        imagem.alt = item.nome;
+        imagem.className = "imagem-produto";
+
         const nome = document.createElement("h2");
         nome.textContent = item.nome;
 
@@ -73,7 +78,7 @@ function mostrarProdutos() {
             adicionarAoCarrinho(item);
         });
 
-        cartao.append(nome, descricao, preco, botao);
+        cartao.append(imagem, nome, descricao, preco, botao);
         vitrine.append(cartao);
     }
 }

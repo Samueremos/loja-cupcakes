@@ -60,13 +60,15 @@ produtos = [
         "id": "morango",
         "nome": "Cupcake de Morango",
         "descricao": "Massa de morango com cobertura de chantilly.",
-        "preco": 8.00
+        "preco": 8.00,
+        "imagem": "images/cupcake-morango.png"
     },
     {
         "id": "chocolate",
         "nome": "Cupcake de Chocolate",
         "descricao": "Massa de chocolate com cobertura de brigadeiro.",
-        "preco": 10.00
+        "preco": 10.00,
+        "imagem": "images/cupcake-chocolate.png"
     }
 ]
 
