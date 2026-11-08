@@ -109,6 +109,12 @@ A documentação detalhada está em:
 - `docs/testes.md`
 - `docs/formulario-avaliacao.md`
 
+## Aplicação publicada
+
+A versão pública da aplicação está disponível em:
+
+https://loja-cupcakes-0r9v.onrender.com
+
 ## Limitações da versão acadêmica
 
 - O pagamento é apenas uma simulação.
