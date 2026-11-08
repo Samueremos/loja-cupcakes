@@ -69,6 +69,34 @@ produtos = [
         "descricao": "Massa de chocolate com cobertura de brigadeiro.",
         "preco": 10.00,
         "imagem": "images/cupcake-chocolate.png"
+    },
+    {
+        "id": "baunilha",
+        "nome": "Cupcake de Baunilha",
+        "descricao": "Massa de baunilha com cobertura cremosa e confeitos coloridos.",
+        "preco": 8.50,
+        "imagem": "images/cupcake-baunilha.png"
+    },
+    {
+        "id": "red-velvet",
+        "nome": "Cupcake Red Velvet",
+        "descricao": "Massa red velvet com cobertura de cream cheese e farofa vermelha.",
+        "preco": 11.00,
+        "imagem": "images/cupcake-red-velvet.png"
+    },
+    {
+        "id": "limao",
+        "nome": "Cupcake de Limão",
+        "descricao": "Massa de limão com cobertura cítrica e raspas de limão.",
+        "preco": 9.50,
+        "imagem": "images/cupcake-limao.png"
+    },
+    {
+        "id": "cookies-cream",
+        "nome": "Cupcake Cookies & Cream",
+        "descricao": "Massa de chocolate com cobertura de biscoito e creme.",
+        "preco": 11.50,
+        "imagem": "images/cupcake-cookies-cream.png"
     }
 ]
 
